@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat-App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        #chat-container {
+            width: 300px;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #chat {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+        #messageinput, #usernameinput {
+            width: calc(100% - 22px);
+            padding: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        #sendbtn {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #sendbtn:hover {
+            background-color: #0056b3;
+        }
+
+        .chat-message {
+            margin-bottom: 5px;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        .chat-message strong {
+            color: #007bff;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="chat-container">
+        <h1>Chat App</h1>
+
+        <input type="text" id="usernameinput" placeholder="Enter your name">
+        <input type="text" id="messageinput" placeholder="Enter message">
+        <button id="sendbtn">Send</button>
+        
+        <div id="chat"></div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const usernameinput = document.getElementById("usernameinput");
+        const messageinput = document.getElementById("messageinput");
+        const sendbtn = document.getElementById("sendbtn");
+        const chat = document.getElementById("chat");
+
+        socket.on("message", (data) => {
+            const { username, message } = data;
+            const p = document.createElement("p");
+            p.classList.add("chat-message");
+            p.innerHTML = `<strong>${username}</strong>: ${message}`;
+            chat.appendChild(p);
+            chat.scrollTop = chat.scrollHeight; 
+        });
+
+        sendbtn.addEventListener("click", () => {
+            const message = messageinput.value;
+            const username = usernameinput.value || "Anonymous";
+            if (message.trim()) {
+                socket.emit("user-message", { username, message });
+                messageinput.value = "";
+            }
+        });
+    </script>
+</body>
+
+</html>
